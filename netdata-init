@@ -1,0 +1,54 @@
+#!/usr/bin/openrc-run
+#
+# OpenRC service script for Netdata daemon
+#
+
+## Edit this for additional options to netdata.
+## For example:
+##  USER_ARGS="-i localhost,192.168.10.2"
+##
+## See 'netdata --help' for more info.
+##
+USER_ARGS=""
+
+description="Netdata Linux Monitoring Service"
+command=/usr/bin/netdata
+pidfile="/run/${RC_SVCNAME}.pid"
+
+# Run in foreground to suppress LISTENER messages
+command_args="-D -P ${pidfile} ${USER_ARGS}"
+extra_started_commands="relog reconf saveDB"
+
+# Force to background suppressing LISTENER messages
+command_background=true
+
+# Save LISTENER messages to log (doesn't work?).
+#output_log="/var/log/netdata/daemon.log"  ## Doesn't seem to log anything.
+
+depends() {
+  provide netdata
+}
+
+stop() {
+  ebegin "Stopping ${RC_SVCNAME}"
+  start-stop-daemon --signal QUIT --pidfile "${pidfile}"
+  eend $?
+}
+
+relog() {
+  ebegin "Reloading ${RC_SVCNAME} log files"
+  start-stop-daemon --signal HUP --pidfile "${pidfile}"
+  eend $?
+}
+
+reconf() {
+  ebegin "Reloading ${RC_SVCNAME} health config"
+  start-stop-daemon --signal USR2 --pidfile "${pidfile}"
+  eend $?
+}
+
+saveDB() {
+  ebegin "Saving internal DB to disk"
+  start-stop-daemon --signal USR1 --pidfile "${pidfile}"
+  eend $?
+}

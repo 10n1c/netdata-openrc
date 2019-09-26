@@ -1,0 +1,7 @@
+## Edit this for additional options to netdata.
+## For example:
+##  USER_ARGS="-i localhost,192.168.10.2"
+##
+## See 'netdata --help' for more info.
+##
+USER_ARGS=""
